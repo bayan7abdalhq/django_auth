@@ -59,9 +59,6 @@ class LoginView(APIView):
         })
 class SignupView(APIView):
     def post(self, request):
-        self.permission_classes = [IsAuthenticated]
-        if not request.user.is_authenticated:
-            return Response({'message': 'Authentication required'}, status=status.HTTP_403_FORBIDDEN)
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             if User.objects.filter(username=serializer.validated_data['username']).exists():
@@ -70,6 +67,7 @@ class SignupView(APIView):
                 return Response({'error': 'Email already exists'}, status=status.HTTP_400_BAD_REQUEST)
             serializer.validated_data['password'] = make_password(serializer.validated_data['password'])
             serializer.save()
+            # user = User().save()
             return Response({'message': 'User created successfully'}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
